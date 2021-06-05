@@ -1,5 +1,6 @@
 package Server;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -28,7 +29,8 @@ public class Game {
             chatroomIsOpen=true;
             broadcast("(Day) Chatroom is open\n");
             long start=new Date().getTime();
-            while(new Date().getTime()-start<300000 && !playersAreReadyToVote());
+            while(new Date().getTime()-start<30000 && !playersAreReadyToVote());
+            broadcast("Time Up!\n");
             chatroomIsOpen=false;
             voting();
         }
@@ -57,6 +59,12 @@ public class Game {
     public boolean playersAreReadyToVote(){
         for(ClientHandler clientHandler:clientHandlers)
             if(!clientHandler.isReadyToVote())
+                return false;
+        return true;
+    }
+    public boolean playersHaveVoted(){
+        for(ClientHandler clientHandler:clientHandlers)
+            if(clientHandler.getVote()==null)
                 return false;
         return true;
     }
@@ -111,8 +119,15 @@ public class Game {
         Player victim;
         HashMap<Player,Integer> votes=new HashMap<>();
         for(ClientHandler clientHandler:clientHandlers){
+            new Thread(new VoteCollector(clientHandler)).start();
+        }
+        while(!playersHaveVoted());
+        for(ClientHandler clientHandler:clientHandlers){
             victim=null;
             vote=clientHandler.getVote();
+            if(vote.equalsIgnoreCase("SKIP")){
+                continue;
+            }
             while((victim=getPlayer(vote))==null){
                 clientHandler.send("Invalid input, Try again\n");
                 vote=clientHandler.getVote();
@@ -125,14 +140,18 @@ public class Game {
         }
         victim=getVictim(votes);
         if(victim==null){
-            broadcast("Tie, No one will reject\n");
+            broadcast("No one will reject\n");
             return;
         }
         else{
             for (ClientHandler clientHandler:clientHandlers)
                 if(clientHandler.getPlayer().getRole()==Role.mayor){
                     if(clientHandler.allow(victim)){
-                        broadcast(victim.getUsername()+" is out!\n");
+                        broadcast("Mayor allowed, "+victim.getUsername()+" is out!\n");
+                        victim.reject();
+                    }
+                    else {
+                        broadcast("Mayor didn't allow, " + victim.getUsername() + " will stay!\n");
                     }
                 }
         }

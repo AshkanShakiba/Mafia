@@ -7,11 +7,15 @@ public class ClientHandler implements Runnable {
     private Player player;
     private Game game;
     private Socket clientSocket;
-    private BufferedReader reader;
+    //private BufferedReader reader;
     private InputStream inputStream;
-    private OutputStream outputStream;
+    //private OutputStream outputStream;
     private boolean isReadyToPlay;
     private boolean isReadyToVote;
+    private String vote;
+
+    public BufferedReader reader;
+    public OutputStream outputStream;
 
     public ClientHandler(Game game, Socket clientSocket) {
         this.game = game;
@@ -35,8 +39,9 @@ public class ClientHandler implements Runnable {
                 username = reader.readLine();
             }
             player = new Player(this,game,username);
-            outputStream.write("type 'READY' to start!\n".getBytes());
-            while(!(message=reader.readLine()).equalsIgnoreCase("READY"));
+            //outputStream.write("type 'READY' to start!\n".getBytes());
+            //while(!(message=reader.readLine()).equalsIgnoreCase("READY"));
+            send("U R ready\n");
             isReadyToPlay =true;
             while ((message = reader.readLine()) != null) {
                 String[] words = message.split(" ");
@@ -78,14 +83,18 @@ public class ClientHandler implements Runnable {
             exception.printStackTrace();
         }
     }
-    public String getVote(){
+    public void vote(){
         String vote="";
         try {
-            outputStream.write("Your vote: ".getBytes());
+            outputStream.write("(SKIP) Your vote: ".getBytes());
             vote=reader.readLine();
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+        this.vote=vote;
+        send("Vote wrote = "+vote);
+    }
+    public String getVote() {
         return vote;
     }
     public boolean allow(Player victim){

@@ -24,6 +24,7 @@ public class Player {
     public void setRole(Role role){
         this.role=role;
         System.out.println(username+": "+role.name());
+        clientHandler.send("Your role: "+role.name()+"\n");
     }
     public Role getRole() {
         return role;
@@ -35,5 +36,8 @@ public class Player {
             clientHandler.send(game.getMayor());
         else if(role==Role.mayor)
             clientHandler.send(game.getDoctor());
+    }
+    public void reject(){
+        game.removeClientHandler(clientHandler);
     }
 }

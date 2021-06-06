@@ -7,50 +7,55 @@ public class ClientHandler implements Runnable {
     private Player player;
     private Game game;
     private Socket clientSocket;
-    //private BufferedReader reader;
+    private BufferedReader reader;
     private InputStream inputStream;
-    //private OutputStream outputStream;
+    private OutputStream outputStream;
     private boolean isReadyToPlay;
     private boolean isReadyToVote;
-    private String vote;
-
-    public BufferedReader reader;
-    public OutputStream outputStream;
+    private String message;
+    private boolean isMuted;
+    private boolean isAlive;
 
     public ClientHandler(Game game, Socket clientSocket) {
         this.game = game;
         this.clientSocket = clientSocket;
         isReadyToPlay =false;
         isReadyToVote=false;
+        message="";
+        isMuted=false;
+        isAlive=true;
     }
 
     @Override
     public void run() {
         try {
-            String message, username;
+            String check,username;
             inputStream = clientSocket.getInputStream();
             outputStream = clientSocket.getOutputStream();
             reader = new BufferedReader(new InputStreamReader(inputStream));
             outputStream.write("Username: ".getBytes());
             username = reader.readLine();
-            while ((message = checkUsername(username)) != null) {
-                outputStream.write(message.getBytes());
+            while ((check = checkUsername(username)) != null) {
+                outputStream.write(check.getBytes());
                 outputStream.write("Username: ".getBytes());
                 username = reader.readLine();
             }
             player = new Player(this,game,username);
-            //outputStream.write("type 'READY' to start!\n".getBytes());
-            //while(!(message=reader.readLine()).equalsIgnoreCase("READY"));
+            outputStream.write("type 'READY' to start!\n".getBytes());
+            while(!(message=reader.readLine()).equalsIgnoreCase("READY"));
             send("U R ready\n");
             isReadyToPlay =true;
+            eraseMessage();
             while ((message = reader.readLine()) != null) {
                 String[] words = message.split(" ");
                 String command = words[0];
                 if (command.equalsIgnoreCase("EXIT")) break;
-                else game.sendMessage(getUsername(), message);
+                else if(command.equalsIgnoreCase("READY")) isReadyToVote=true;
+                else if(!isMuted && isAlive) game.sendMessage(getUsername(), message);
+                //else send("You've been muted by psychiatrist\n");
             }
+            player.kill();
             game.removeClientHandler(this);
-            clientSocket.close();
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -67,7 +72,9 @@ public class ClientHandler implements Runnable {
         return isReadyToPlay;
     }
     public boolean isReadyToVote() {
-        return isReadyToVote;
+        if(message.equalsIgnoreCase("READY"))
+            return true;
+        return false;
     }
     private String checkUsername(String username) {
         if (username.contains(" ")) return "Username can't have space\n";
@@ -83,34 +90,28 @@ public class ClientHandler implements Runnable {
             exception.printStackTrace();
         }
     }
-    public void vote(){
-        String vote="";
+    public void eraseMessage(){
+        message="";
+    }
+    public String getMessage() {
+        if(isAlive)
+            return message;
+        return "[Dead:x_x]";
+    }
+    public void closeSocket(){
         try {
-            outputStream.write("(SKIP) Your vote: ".getBytes());
-            vote=reader.readLine();
+            clientSocket.close();
         } catch (IOException exception) {
             exception.printStackTrace();
         }
-        this.vote=vote;
-        send("Vote wrote = "+vote);
     }
-    public String getVote() {
-        return vote;
+    public void mute(){
+        isMuted=true;
     }
-    public boolean allow(Player victim){
-        String answer=null;
-        try {
-            send(victim.getUsername()+" is gonna be out, will you allow? (Y/N)");
-            answer=reader.readLine();
-            while(!answer.equalsIgnoreCase("Y") && !answer.equalsIgnoreCase("N")){
-                send("Invalid input, Try again\n");
-                answer=reader.readLine();
-            }
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
-        if(answer.equalsIgnoreCase("Y"))
-            return true;
-        return false;
+    public void unmute(){
+        isMuted=false;
+    }
+    public void kill(){
+        isAlive=false;
     }
 }

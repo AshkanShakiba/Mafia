@@ -2,16 +2,16 @@ package Server;
 
 import java.io.*;
 import java.net.Socket;
+import java.util.Scanner;
 
 public class ClientHandler implements Runnable {
     private Player player;
     private Game game;
     private Socket clientSocket;
-    private BufferedReader reader;
-    private InputStream inputStream;
-    private OutputStream outputStream;
+    private Scanner scanner;
+    private DataInputStream inputStream;
+    private DataOutputStream outputStream;
     private boolean isReadyToPlay;
-    private boolean isReadyToVote;
     private String message;
     private boolean isMuted;
     private boolean isAlive;
@@ -20,7 +20,6 @@ public class ClientHandler implements Runnable {
         this.game = game;
         this.clientSocket = clientSocket;
         isReadyToPlay =false;
-        isReadyToVote=false;
         message="";
         isMuted=false;
         isAlive=true;
@@ -30,27 +29,26 @@ public class ClientHandler implements Runnable {
     public void run() {
         try {
             String check,username;
-            inputStream = clientSocket.getInputStream();
-            outputStream = clientSocket.getOutputStream();
-            reader = new BufferedReader(new InputStreamReader(inputStream));
-            outputStream.write("Username: ".getBytes());
-            username = reader.readLine();
+            inputStream = new DataInputStream(clientSocket.getInputStream());
+            outputStream = new DataOutputStream(clientSocket.getOutputStream());
+            scanner = new Scanner(inputStream);
+            send("Username: ");
+            username = next();
             while ((check = checkUsername(username)) != null) {
-                outputStream.write(check.getBytes());
-                outputStream.write("Username: ".getBytes());
-                username = reader.readLine();
+                send(check);
+                send("Username: ");
+                username = next();
             }
             player = new Player(this,game,username);
-            outputStream.write("type 'READY' to start!\n".getBytes());
-            while(!(message=reader.readLine()).equalsIgnoreCase("READY"));
+            send("Type 'START' to start!\n");
+            while(!(message=next()).equalsIgnoreCase("START"));
             send("U R ready\n");
             isReadyToPlay =true;
             eraseMessage();
-            while ((message = reader.readLine()) != null) {
+            while ((message = next()) != null) {
                 String[] words = message.split(" ");
                 String command = words[0];
                 if (command.equalsIgnoreCase("EXIT")) break;
-                else if(command.equalsIgnoreCase("READY")) isReadyToVote=true;
                 else if(!isMuted && isAlive) game.sendMessage(getUsername(), message);
                 //else send("You've been muted by psychiatrist\n");
             }
@@ -85,7 +83,7 @@ public class ClientHandler implements Runnable {
     }
     public void send(String message) {
         try {
-            outputStream.write(message.getBytes());
+            outputStream.writeUTF((message+"\n"));
         } catch (IOException exception) {
             exception.printStackTrace();
         }
@@ -113,5 +111,11 @@ public class ClientHandler implements Runnable {
     }
     public void kill(){
         isAlive=false;
+    }
+    public String next(){
+        message=scanner.nextLine();
+        if(message.length()>2)
+            return message.substring(2);
+        return "";
     }
 }

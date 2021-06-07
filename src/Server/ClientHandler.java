@@ -34,17 +34,21 @@ public class ClientHandler implements Runnable {
             scanner = new Scanner(inputStream);
             send("Username: ");
             username = next();
-            System.out.println("RECV: "+username+"\n");
+            //send(username);
             while ((check = checkUsername(username)) != null) {
                 send(check);
                 send("Username: ");
                 username = next();
+                //send(username);
             }
             player = new Player(this,game,username);
             send("Type 'START' to start!\n");
-            while(!(message=next()).equalsIgnoreCase("START"));
-            send("Please wait for game to be started\n");
+            while(!(message=next()).equalsIgnoreCase("START")){
+                //send(message);
+            }
+            //send(message);
             isReadyToPlay =true;
+            game.broadcast(username+" logged in");
             eraseMessage();
             while ((message = next()) != null) {
                 String[] words = message.split(" ");

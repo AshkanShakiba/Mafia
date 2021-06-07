@@ -31,21 +31,39 @@ public class GamePane extends JPanel {
     }
 
     public static void main(String[] args){
+//        System.out.println(args[0]);
+//        System.out.println(args[1]);
+//        Client client=new Client(args[0],Integer.parseInt(args[1]));
         Client client=new Client("127.0.0.1",4321);
         client.connectToServer();
-        GamePane messagePane = new GamePane(client);
+        GamePane gamePane = new GamePane(client);
 
-        JFrame frame = new JFrame("MaFiA");
+        JFrame frame = new JFrame("♠ Mafia ♠");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(512, 512);
-        frame.getContentPane().add(messagePane, BorderLayout.CENTER);
+        frame.setSize(274, 500);
+        frame.getContentPane().add(gamePane, BorderLayout.CENTER);
         frame.setVisible(true);
 
         String message;
         Scanner scanner=new Scanner(client.getInputStream());
         while((message=scanner.nextLine())!=null){
             if(message.length()>2)
-                listModel.addElement(message);
+                listModel.addElement(message.substring(2));
+        }
+    }
+
+    public void start(){
+        JFrame frame = new JFrame("♠ Mafia ♠");
+        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setSize(512, 512);
+        frame.getContentPane().add(this, BorderLayout.CENTER);
+        frame.setVisible(true);
+
+        String message;
+        Scanner scanner=new Scanner(client.getInputStream());
+        while((message=scanner.nextLine())!=null){
+            if(message.length()>2)
+                listModel.addElement(message.substring(2));
         }
     }
 }

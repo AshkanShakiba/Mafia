@@ -18,13 +18,16 @@ public class Client {
     }
 
     public static void main(String[] args){
+        String ip;
+        int port;
+        System.out.println("");
         Client client=new Client("127.0.0.1",4321);
-        if(!client.connectToServer()) {
-            System.err.println("Connection failed");
-        }
-        else{
+        if(client.connectToServer()) {
             System.out.println("Connected to the server");
             client.start();
+        }
+        else{
+            System.err.println("Connection failed");
         }
     }
     public boolean connectToServer(){
@@ -50,5 +53,15 @@ public class Client {
             }
             if(message.equalsIgnoreCase("EXIT")) break;
         }
+    }
+    public void send(String message){
+        try {
+            outputStream.writeUTF(message+"\n");
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+    public static DataInputStream getInputStream() {
+        return inputStream;
     }
 }

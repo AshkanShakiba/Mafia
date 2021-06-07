@@ -34,6 +34,7 @@ public class ClientHandler implements Runnable {
             scanner = new Scanner(inputStream);
             send("Username: ");
             username = next();
+            System.out.println("RECV: "+username+"\n");
             while ((check = checkUsername(username)) != null) {
                 send(check);
                 send("Username: ");

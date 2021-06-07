@@ -42,7 +42,7 @@ public class ClientHandler implements Runnable {
             player = new Player(this,game,username);
             send("Type 'START' to start!\n");
             while(!(message=next()).equalsIgnoreCase("START"));
-            send("U R ready\n");
+            send("Please wait for game to be started\n");
             isReadyToPlay =true;
             eraseMessage();
             while ((message = next()) != null) {
@@ -50,7 +50,8 @@ public class ClientHandler implements Runnable {
                 String command = words[0];
                 if (command.equalsIgnoreCase("EXIT")) break;
                 else if(!isMuted && isAlive) game.sendMessage(getUsername(), message);
-                //else send("You've been muted by psychiatrist\n");
+                else if(isMuted && isAlive) send("You've been muted by psychiatrist\n");
+                else send("You're dead :( R.I.P.\n");
             }
             player.kill();
             game.removeClientHandler(this);

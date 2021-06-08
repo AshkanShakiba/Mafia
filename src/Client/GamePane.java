@@ -47,23 +47,9 @@ public class GamePane extends JPanel {
         String message;
         Scanner scanner=new Scanner(client.getInputStream());
         while((message=scanner.nextLine())!=null){
-            if(message.length()>2)
-                listModel.addElement(message.substring(2));
-        }
-    }
-
-    public void start(){
-        JFrame frame = new JFrame("♠ Mafia ♠");
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(512, 512);
-        frame.getContentPane().add(this, BorderLayout.CENTER);
-        frame.setVisible(true);
-
-        String message;
-        Scanner scanner=new Scanner(client.getInputStream());
-        while((message=scanner.nextLine())!=null){
-            if(message.length()>2)
-                listModel.addElement(message.substring(2));
+            listModel.addElement(message);
+//            if(message.length()>2)
+//                listModel.addElement(message.substring(2));
         }
     }
 }

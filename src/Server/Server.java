@@ -8,10 +8,12 @@ import java.util.Date;
 public class Server implements Runnable {
     private int port;
     private Game game;
+    private long joinTime;
 
     public Server(Game game, int port) {
         this.game = game;
         this.port = port;
+        joinTime=90000;
     }
 
     @Override
@@ -20,7 +22,7 @@ public class Server implements Runnable {
             int playersCount = 0;
             long startTime = new Date().getTime();
             ServerSocket serverSocket = new ServerSocket(port);
-            while (new Date().getTime() - startTime < 90000 || playersCount < 6) {
+            while (new Date().getTime() - startTime < joinTime || playersCount < 6) {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("Client connection accepted from " + clientSocket);
                 ClientHandler clientHandler = new ClientHandler(game, clientSocket);

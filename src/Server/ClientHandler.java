@@ -34,19 +34,15 @@ public class ClientHandler implements Runnable {
             scanner = new Scanner(inputStream);
             send("Username: ");
             username = next();
-            //send(username);
             while ((check = checkUsername(username)) != null) {
                 send(check);
                 send("Username: ");
                 username = next();
-                //send(username);
             }
             player = new Player(this,game,username);
             send("Type 'START' to start!\n");
             while(!(message=next()).equalsIgnoreCase("START")){
-                //send(message);
             }
-            //send(message);
             isReadyToPlay =true;
             game.broadcast(username+" logged in");
             eraseMessage();
@@ -54,13 +50,18 @@ public class ClientHandler implements Runnable {
                 String[] words = message.split(" ");
                 String command = words[0];
                 if (command.equalsIgnoreCase("EXIT")) break;
+                else if(command.equalsIgnoreCase("HISTORY")) send(game.getHistory());
                 else if(!isMuted && isAlive) game.sendMessage(getUsername(), message);
                 else if(isMuted && isAlive) send("You've been muted by psychiatrist\n");
                 else send("You're dead :( R.I.P.\n");
             }
             player.kill();
             game.removeClientHandler(this);
+            game.broadcast(player.getUsername()+" left the game");
         } catch (IOException exception) {
+            player.kill();
+            game.removeClientHandler(this);
+            game.broadcast(player.getUsername()+" left the game");
             exception.printStackTrace();
         }
     }

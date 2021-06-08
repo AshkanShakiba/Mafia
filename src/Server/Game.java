@@ -1,10 +1,7 @@
 package Server;
 
-import javax.swing.plaf.nimbus.AbstractRegionPainter;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.io.*;
+import java.util.*;
 
 public class Game {
     private boolean chatroomIsOpen;
@@ -13,6 +10,12 @@ public class Game {
     private ArrayList<ClientHandler> clientHandlers;
     private String whatHappened;
     private boolean dieHardHaveRequested;
+    private File history;
+    private long dayTime;
+    private long votingTime;
+    private long mayorTime;
+    private long nightTime;
+    private long roleTime;
 
     public Game(){
         chatroomIsOpen=true;
@@ -21,6 +24,13 @@ public class Game {
         clientHandlers=new ArrayList<>();
         whatHappened="";
         dieHardHaveRequested=false;
+        history=new File("history.txt");
+        clearHistory();
+        dayTime=30000; //300000
+        votingTime=30000;
+        mayorTime=15000;
+        nightTime=30000;
+        roleTime=30000;
     }
 
     public void play(){
@@ -36,10 +46,11 @@ public class Game {
             chatroomIsOpen=true;
             broadcast("(Day) Chatroom is open\n");
             long start=new Date().getTime();
-            while(new Date().getTime()-start<30000 && !playersAreReadyToVote());
+            while(new Date().getTime()-start<dayTime && !playersAreReadyToVote());
             broadcast("Time Up!\n");
             unmutePlayers();
             // Voting
+            broadcast("(Voting) Your vote: ");
             chatroomIsOpen=false;
             voting();
             // Night
@@ -82,18 +93,22 @@ public class Game {
     }
     public void broadcast(String message){
         for (ClientHandler clientHandler : clientHandlers)
-            clientHandler.send(message+"\n");
+            if(clientHandler.isReadyToPlay())
+                clientHandler.send(message+"\n");
     }
     public void sendMessage(String username,String message){
         if(chatroomIsOpen){
+            addHistory(message);
             for (ClientHandler clientHandler : clientHandlers)
                 if(clientHandler.isReadyToPlay())
                     clientHandler.send(username+": "+message+"\n");
         }
         if(chatroomIsOpenForMafias){
-            for (ClientHandler clientHandler : clientHandlers)
-                if(clientHandler.getPlayer().getRole()==Role.godfather || clientHandler.getPlayer().getRole()==Role.drLecter || clientHandler.getPlayer().getRole()==Role.mafia)
-                    clientHandler.send(username+": "+message+"\n");
+            for (ClientHandler clientHandler : clientHandlers) {
+                Role role=clientHandler.getPlayer().getRole();
+                if (role== Role.godfather || role== Role.drLecter || role== Role.mafia)
+                    clientHandler.send(username + ": " + message + "\n");
+            }
         }
     }
     public String getMafias(){
@@ -133,9 +148,8 @@ public class Game {
         Player victim;
         HashMap<Player,Integer> votes=new HashMap<>();
         eraseMessages();
-        broadcast("(30s) Your vote: ");
         try {
-            Thread.sleep(30000);
+            Thread.sleep(votingTime);
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
@@ -165,8 +179,11 @@ public class Game {
             if (clientHandler.getPlayer().getRole() == Role.mayor) {
                 if(clientHandler.getMessage().equals("[Dead:x_x]")) break;
                 clientHandler.send(victim.getUsername() + " is gonna be out, will you allow? (Y/N)\n");
-                long start=new Date().getTime();
-                while(new Date().getTime()-start<10000);
+                try {
+                    Thread.sleep(mayorTime);
+                } catch (InterruptedException exception) {
+                    exception.printStackTrace();
+                }
                 if (clientHandler.getMessage().equalsIgnoreCase("Y")) {
                     broadcast("Mayor allowed, " + victim.getUsername() + " is out\n");
                     victim.kill();
@@ -206,7 +223,7 @@ public class Game {
     private void night(){
         chatroomIsOpenForMafias=true;
         try {
-            Thread.sleep(20000);
+            Thread.sleep(nightTime);
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
@@ -230,7 +247,7 @@ public class Game {
             }
         }
         try {
-            Thread.sleep(15000);
+            Thread.sleep(roleTime);
         } catch (InterruptedException exception) {
             exception.printStackTrace();
         }
@@ -242,13 +259,37 @@ public class Game {
                 targetedByGodfather=getPlayer(clientHandler.getMessage());
             }
             else if(role==Role.doctor) {
-                savedByDoctor=getPlayer(clientHandler.getMessage());
+                Player player=getPlayer(clientHandler.getMessage());
+                if(player.getRole()==Role.doctor){
+                    if(player.canSaveItself()) {
+                        savedByDoctor = player;
+                    }
+                }
+                else{
+                    savedByDoctor=getPlayer(clientHandler.getMessage());
+                }
             }
             else if(role==Role.professional) {
                 targetedByProfessional=getPlayer(clientHandler.getMessage());
             }
             else if(role==Role.drLecter) {
-                savedByDrLecter=getPlayer(clientHandler.getMessage());
+                Player player=getPlayer(clientHandler.getMessage());
+                if(player.getRole()==Role.drLecter){
+                    if(player.canSaveItself()) {
+                        savedByDrLecter = player;
+                    }
+                }
+                else{
+                    savedByDrLecter=getPlayer(clientHandler.getMessage());
+                }
+                if(savedByDrLecter!=null){
+                    for (ClientHandler clientHandlerM:clientHandlers){
+                        Role roleM=clientHandlerM.getPlayer().getRole();
+                        if(roleM==Role.godfather || roleM==Role.mafia){
+                            clientHandlerM.send("Dr. Lecter saved "+savedByDrLecter.getUsername());
+                        }
+                    }
+                }
             }
             else if(role==Role.detective) {
                 Player player=getPlayer(clientHandler.getMessage());
@@ -273,7 +314,7 @@ public class Game {
                 broadcast("Doctor Saved the target\n");
             }
             else{
-                targetedByGodfather.kill();
+                targetedByGodfather.shoot();
                 broadcast(targetedByGodfather.getUsername()+" have been killed\n");
                 if(dieHardHaveRequested){
                     whatHappened+="The "+targetedByGodfather.getRole().name()+" is out\n";
@@ -354,5 +395,38 @@ public class Game {
     private void eraseMessages(){
         for(ClientHandler clientHandler:clientHandlers)
             clientHandler.eraseMessage();
+    }
+    public String getHistory(){
+        String historyString="";
+        try{
+            Scanner scanner=new Scanner(history);
+            while (scanner.hasNextLine()){
+                historyString+=scanner.nextLine()+"\n";
+            }
+            scanner.close();
+        } catch (FileNotFoundException exception) {
+            exception.printStackTrace();
+        }
+        return historyString;
+    }
+    private void addHistory(String message){
+        try {
+            FileWriter writer = new FileWriter(history);
+            writer.write(message+"\n");
+            writer.close();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
+    }
+    private void clearHistory(){
+        try {
+            FileWriter fileWriter = new FileWriter(history, false);
+            PrintWriter printWriter = new PrintWriter(fileWriter, false);
+            printWriter.flush();
+            printWriter.close();
+            fileWriter.close();
+        } catch (IOException exception) {
+            exception.printStackTrace();
+        }
     }
 }

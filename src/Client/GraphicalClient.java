@@ -6,14 +6,14 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Scanner;
 
-public class GamePane extends JPanel {
-    private Client client;
+public class GraphicalClient extends JPanel {
+    private ConsoleClient client;
 
     private static DefaultListModel<String> listModel = new DefaultListModel<>();
     private static JList<String> messageList = new JList<>(listModel);
     private static JTextField inputField = new JTextField();
 
-    public GamePane(Client client){
+    public GraphicalClient(ConsoleClient client){
         this.client=client;
 
         setLayout(new BorderLayout());
@@ -34,9 +34,9 @@ public class GamePane extends JPanel {
 //        System.out.println(args[0]);
 //        System.out.println(args[1]);
 //        Client client=new Client(args[0],Integer.parseInt(args[1]));
-        Client client=new Client("127.0.0.1",4321);
+        ConsoleClient client=new ConsoleClient("127.0.0.1",4321);
         client.connectToServer();
-        GamePane gamePane = new GamePane(client);
+        GraphicalClient gamePane = new GraphicalClient(client);
 
         JFrame frame = new JFrame("♠ Mafia ♠");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);

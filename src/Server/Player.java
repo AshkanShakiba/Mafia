@@ -51,6 +51,7 @@ public class Player {
             game.setGodfather();
         role = Role.citizen;
         clientHandler.kill();
+        game.killPlayer(this);
     }
     public void shoot() {
         life--;

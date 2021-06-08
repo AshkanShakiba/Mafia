@@ -125,4 +125,7 @@ public class ClientHandler implements Runnable {
             return message.substring(2);
         return "";
     }
+    public boolean isAlive(){
+        return isAlive;
+    }
 }

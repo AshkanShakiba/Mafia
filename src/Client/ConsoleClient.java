@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 
-public class Client {
+public class ConsoleClient {
     private static String ip;
     private static int port;
     private static Socket socket;
@@ -12,7 +12,7 @@ public class Client {
     private static DataOutputStream outputStream;
     private static Scanner scanner=new Scanner(System.in);
 
-    public Client(String ip,int port){
+    public ConsoleClient(String ip, int port){
         this.ip=ip;
         this.port=port;
     }
@@ -21,7 +21,7 @@ public class Client {
         String ip;
         int port;
         System.out.println("");
-        Client client=new Client("127.0.0.1",4321);
+        ConsoleClient client=new ConsoleClient("127.0.0.1",4321);
         if(client.connectToServer()) {
             System.out.println("Connected to the server");
             client.start();

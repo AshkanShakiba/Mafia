@@ -26,10 +26,10 @@ public class Game {
         dieHardHaveRequested=false;
         history=new File("history.txt");
         clearHistory();
-        dayTime=30000; //300000
-        votingTime=30000;
-        mayorTime=15000;
-        nightTime=30000;
+        dayTime=5000; //300000
+        votingTime=15000; // 30000
+        mayorTime=10000; //15000
+        nightTime=5000; // 30000
         roleTime=30000;
     }
 
@@ -83,7 +83,7 @@ public class Game {
     }
     public boolean playersAreReadyToVote(){
         for(ClientHandler clientHandler:clientHandlers)
-            if(!clientHandler.isReadyToVote())
+            if(clientHandler.isAlive() && !clientHandler.isReadyToVote())
                 return false;
         return true;
     }
@@ -98,7 +98,7 @@ public class Game {
     }
     public void sendMessage(String username,String message){
         if(chatroomIsOpen){
-            addHistory(message);
+            addHistory(username+": "+message+"\n");
             for (ClientHandler clientHandler : clientHandlers)
                 if(clientHandler.isReadyToPlay())
                     clientHandler.send(username+": "+message+"\n");
@@ -364,7 +364,8 @@ public class Game {
     private boolean isGameFinished(){
         int mafias=0,citizens=0;
         for(Player player:players){
-            if(player.getRole()==Role.godfather || player.getRole()==Role.drLecter || player.getRole()==Role.mafia)
+            Role role=player.getRole();
+            if(role==Role.godfather || role==Role.drLecter || role==Role.mafia)
                 mafias++;
             else
                 citizens++;
@@ -428,5 +429,8 @@ public class Game {
         } catch (IOException exception) {
             exception.printStackTrace();
         }
+    }
+    public void killPlayer(Player player){
+        players.remove(player);
     }
 }

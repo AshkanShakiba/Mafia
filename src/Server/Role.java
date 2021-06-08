@@ -3,54 +3,94 @@ package Server;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 
+/**
+ * The enum Role.
+ */
 public enum Role {
+    /**
+     * Godfather role.
+     */
     godfather,
+    /**
+     * Dr lecter role.
+     */
     drLecter,
+    /**
+     * Mafia role.
+     */
     mafia,
+    /**
+     * Doctor role.
+     */
     doctor,
+    /**
+     * Detective role.
+     */
     detective,
+    /**
+     * Professional role.
+     */
     professional,
+    /**
+     * Citizen role.
+     */
     citizen,
+    /**
+     * Mayor role.
+     */
     mayor,
+    /**
+     * Psychiatrist role.
+     */
     psychiatrist,
+    /**
+     * Die hard role.
+     */
     dieHard;
 
-    public static void setRoles(ArrayList<Player> players){
-        SecureRandom random=new SecureRandom();
-        int index,turn=1,playersCount=players.size();
-        while(neutralPlayerExist(players)){
-            index=random.nextInt(playersCount);
-            while(players.get(index).hasRole())
-                index=random.nextInt(playersCount);
+    /**
+     * Sets roles for given players.
+     *
+     * @param players the players
+     */
+    public static void setRoles(ArrayList<Player> players) {
+        SecureRandom random = new SecureRandom();
+        int index, turn = 1, playersCount = players.size();
+        while (neutralPlayerExist(players)) {
+            index = random.nextInt(playersCount);
+            while (players.get(index).hasRole())
+                index = random.nextInt(playersCount);
             players.get(index).setRole(getRole(turn));
             turn++;
         }
     }
-    private static Role getRole(int turn){
-        if(turn==1)
+
+    private static Role getRole(int turn) {
+        if (turn == 1)
             return godfather;
-        else if(turn==2)
+        else if (turn == 2)
             return detective;
-        else if(turn==3)
+        else if (turn == 3)
             return doctor;
-        else if(turn==5)
+        else if (turn == 5)
             return mayor;
-        else if(turn==7)
+        else if (turn == 7)
             return drLecter;
-        else if(turn==8)
+        else if (turn == 8)
             return dieHard;
-        else if(turn==9)
+        else if (turn == 9)
             return professional;
-        else if(turn==10)
+        else if (turn == 10)
             return psychiatrist;
-        else if(turn==4 || turn==11 || turn==14)
+        else if (turn == 4 || turn == 11 || turn == 14)
             return mafia;
         else
             return citizen;
-     }
-    private static boolean neutralPlayerExist(ArrayList<Player> players){
-        for(Player player:players)
-            if(!player.hasRole())
+    }
+
+    private static boolean neutralPlayerExist(ArrayList<Player> players) {
+        for (Player player : players)
+            if (!player.hasRole())
                 return true;
         return false;
     }

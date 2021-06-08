@@ -5,17 +5,29 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Date;
 
+/**
+ * Server of each game.
+ */
 public class Server implements Runnable {
     private int port;
     private Game game;
     private long joinTime;
 
+    /**
+     * Instantiates a new Server.
+     *
+     * @param game the game that server run
+     * @param port the port which server runs on
+     */
     public Server(Game game, int port) {
         this.game = game;
         this.port = port;
-        joinTime=10000; //90000
+        joinTime = 10000; //90000
     }
 
+    /**
+     * Entrance point of server thread
+     */
     @Override
     public void run() {
         try {
@@ -31,7 +43,7 @@ public class Server implements Runnable {
                 playersCount++;
                 if (playersCount == 15) break;
             }
-            while(!game.playersAreReadyToPlay());
+            while (!game.playersAreReadyToPlay()) ;
             game.setPlayers();
             game.play();
         } catch (IOException exception) {

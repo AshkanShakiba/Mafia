@@ -22,11 +22,11 @@ public class Server implements Runnable {
     public Server(Game game, int port) {
         this.game = game;
         this.port = port;
-        joinTime = 10000; //90000
+        joinTime = 20000; //90000
     }
 
     /**
-     * Entrance point of server thread
+     * Entrance point of server thread.
      */
     @Override
     public void run() {

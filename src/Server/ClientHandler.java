@@ -40,7 +40,7 @@ public class ClientHandler implements Runnable {
                 username = next();
             }
             player = new Player(this,game,username);
-            send("Type 'START' to start!\n");
+            send("Type 'START' to start!");
             while(!(message=next()).equalsIgnoreCase("START")){
             }
             isReadyToPlay =true;
@@ -52,8 +52,8 @@ public class ClientHandler implements Runnable {
                 if (command.equalsIgnoreCase("EXIT")) break;
                 else if(command.equalsIgnoreCase("HISTORY")) send(game.getHistory());
                 else if(!isMuted && isAlive) game.sendMessage(getUsername(), message);
-                else if(isMuted && isAlive) send("You've been muted by psychiatrist\n");
-                else send("You're dead :( R.I.P.\n");
+                else if(isMuted && isAlive) send("You've been muted by psychiatrist");
+                else send("You're dead :( R.I.P.");
             }
             player.kill();
             game.removeClientHandler(this);
@@ -82,10 +82,10 @@ public class ClientHandler implements Runnable {
         return false;
     }
     private String checkUsername(String username) {
-        if (username.contains(" ")) return "Username can't have space\n";
-        else if (username.length() < 3) return "Username must contains at least 3 characters\n";
-        else if (20 < username.length()) return "Username can't contain more than 20 characters\n";
-        else if (!game.isNonRepetitive(username)) return "This username is already occupied\n";
+        if (username.contains(" ")) return "Username can't have space";
+        else if (username.length() < 3) return "Username must contains at least 3 characters";
+        else if (20 < username.length()) return "Username can't contain more than 20 characters";
+        else if (!game.isNonRepetitive(username)) return "This username is already occupied";
         else return null;
     }
     public void send(String message) {
@@ -127,5 +127,8 @@ public class ClientHandler implements Runnable {
     }
     public boolean isAlive(){
         return isAlive;
+    }
+    public void alive(){
+        isAlive=true;
     }
 }

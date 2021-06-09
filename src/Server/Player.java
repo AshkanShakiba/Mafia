@@ -33,7 +33,7 @@ public class Player {
         else
             life = 1;
         System.out.println(username + ": " + role.name());
-        clientHandler.send("Your role: " + role.name() + "\n");
+        clientHandler.send("Your role: " + role.name());
     }
     public Role getRole() {
         return role;
@@ -41,8 +41,6 @@ public class Player {
     public void introduce() {
         if (role == Role.godfather || role == Role.drLecter || role == Role.mafia)
             clientHandler.send(game.getMafias());
-//        else if (role == Role.doctor)
-//            clientHandler.send(game.getMayor());
         else if (role == Role.mayor)
             clientHandler.send(game.getDoctor());
     }

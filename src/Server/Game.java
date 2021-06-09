@@ -4,6 +4,7 @@ import java.io.*;
 import java.util.*;
 
 public class Game {
+    private boolean gameIsFinised;
     private boolean chatroomIsOpen;
     private boolean chatroomIsOpenForMafias;
     private ArrayList<Player> players;
@@ -18,6 +19,7 @@ public class Game {
     private long roleTime;
 
     public Game(){
+        gameIsFinised=false;
         chatroomIsOpen=true;
         chatroomIsOpenForMafias=false;
         players=new ArrayList<>();
@@ -27,10 +29,10 @@ public class Game {
         history=new File("history.txt");
         clearHistory();
         dayTime=5000; //300000
-        votingTime=15000; // 30000
-        mayorTime=10000; //15000
+        votingTime=40000; // 30000
+        mayorTime=15000; //15000
         nightTime=5000; // 30000
-        roleTime=30000;
+        roleTime=5000;
     }
 
     public void play(){
@@ -40,24 +42,34 @@ public class Game {
         for(Player player:players){
             player.introduce();
         }
+        /////////////////////
+        try {
+            Thread.sleep(15000);
+        } catch (InterruptedException exception) {
+            exception.printStackTrace();
+        }
+        /////////////////////
         // Day, Voting, Night
         while(!isGameFinished()){
             // Day
             chatroomIsOpen=true;
-            broadcast("(Day) Chatroom is open\n");
+            broadcast("(Day) Chatroom is open");
             long start=new Date().getTime();
             while(new Date().getTime()-start<dayTime && !playersAreReadyToVote());
-            broadcast("Time Up!\n");
             unmutePlayers();
             // Voting
             broadcast("(Voting) Your vote: ");
             chatroomIsOpen=false;
             voting();
+            if(isGameFinished())
+                break;
             // Night
-            broadcast("(Night) Chatroom is open only for mafias\n");
+            broadcast("(Night) Chatroom is open only for mafias");
             night();
         }
-        chatroomIsOpen=true;
+        unmutePlayers();
+        alivePlayers();
+        gameIsFinised=true;
     }
 
     public void addClientHandler(ClientHandler clientHandler){
@@ -94,20 +106,27 @@ public class Game {
     public void broadcast(String message){
         for (ClientHandler clientHandler : clientHandlers)
             if(clientHandler.isReadyToPlay())
-                clientHandler.send(message+"\n");
+                clientHandler.send(message);
     }
     public void sendMessage(String username,String message){
-        if(chatroomIsOpen){
-            addHistory(username+": "+message+"\n");
+        if(gameIsFinised){
+            addHistory(username+": "+message);
             for (ClientHandler clientHandler : clientHandlers)
                 if(clientHandler.isReadyToPlay())
-                    clientHandler.send(username+": "+message+"\n");
+                    clientHandler.send(username+": "+message);
+            return;
+        }
+        if(chatroomIsOpen){
+            addHistory(username+": "+message);
+            for (ClientHandler clientHandler : clientHandlers)
+                if(clientHandler.isReadyToPlay())
+                    clientHandler.send(username+": "+message);
         }
         if(chatroomIsOpenForMafias){
             for (ClientHandler clientHandler : clientHandlers) {
                 Role role=clientHandler.getPlayer().getRole();
                 if (role== Role.godfather || role== Role.drLecter || role== Role.mafia)
-                    clientHandler.send(username + ": " + message + "\n");
+                    clientHandler.send(username + ": " + message);
             }
         }
     }
@@ -127,19 +146,11 @@ public class Game {
         }
         return mafias;
     }
-    public String getMayor(){
-        String mayor="Mayor: ";
-        for(Player player:players){
-            if(player.getRole()==Role.mayor)
-                mayor+=player.getUsername()+"\n";
-        }
-        return mayor;
-    }
     public String getDoctor(){
         String doctor="Doctor: ";
         for(Player player:players){
             if(player.getRole()==Role.doctor)
-                doctor+=player.getUsername()+"\n";
+                doctor+=player.getUsername();
         }
         return doctor;
     }
@@ -160,7 +171,7 @@ public class Game {
             System.out.println(clientHandler.getUsername()+" : "+vote);
             victim=getPlayer(vote);
             if(victim==null){
-                broadcast(clientHandler.getUsername()+" skipped\n");
+                broadcast(clientHandler.getUsername()+" skipped");
                 continue;
             }
             broadcast(clientHandler.getUsername()+" voted "+victim.getUsername());
@@ -171,24 +182,24 @@ public class Game {
         }
         victim=getVictim(votes);
         if(victim==null){
-            broadcast("No one will reject\n");
+            broadcast("No one will reject");
             return;
         }
         eraseMessages();
         for (ClientHandler clientHandler:clientHandlers) {
             if (clientHandler.getPlayer().getRole() == Role.mayor) {
                 if(clientHandler.getMessage().equals("[Dead:x_x]")) break;
-                clientHandler.send(victim.getUsername() + " is gonna be out, will you allow? (Y/N)\n");
+                clientHandler.send(victim.getUsername() + " is gonna be out, will you allow? (Y/N)");
                 try {
                     Thread.sleep(mayorTime);
                 } catch (InterruptedException exception) {
                     exception.printStackTrace();
                 }
                 if (clientHandler.getMessage().equalsIgnoreCase("Y")) {
-                    broadcast("Mayor allowed, " + victim.getUsername() + " is out\n");
+                    broadcast("Mayor allowed, " + victim.getUsername() + " is out");
                     victim.kill();
                 } else {
-                    broadcast("Mayor didn't allow, " + victim.getUsername() + " will stay\n");
+                    broadcast("Mayor didn't allow, " + victim.getUsername() + " will stay");
                 }
             }
         }
@@ -232,18 +243,18 @@ public class Game {
         for(ClientHandler clientHandler:clientHandlers){
             Role role=clientHandler.getPlayer().getRole();
             if(role==Role.godfather)
-                clientHandler.send("Select someone to kill\n");
+                clientHandler.send("Select someone to kill");
             else if(role==Role.drLecter || role==Role.doctor)
-                clientHandler.send("Select someone to save\n");
+                clientHandler.send("Select someone to save");
             else if(role==Role.detective)
-                clientHandler.send("Select someone to inquiry\n");
+                clientHandler.send("Select someone to inquiry");
             else if(role==Role.professional)
-                clientHandler.send("Select someone to shoot\n");
+                clientHandler.send("Select someone to shoot");
             else if(role==Role.psychiatrist)
                 clientHandler.send("Select someone to mute");
             else if(role==Role.dieHard){
                 if(clientHandler.getPlayer().canRequest())
-                    clientHandler.send("Are you agree to public announcement? (Y/N)\n");
+                    clientHandler.send("Are you agree to public announcement? (Y/N)");
             }
         }
         try {
@@ -260,7 +271,7 @@ public class Game {
             }
             else if(role==Role.doctor) {
                 Player player=getPlayer(clientHandler.getMessage());
-                if(player.getRole()==Role.doctor){
+                if(player!=null && player.getRole()==Role.doctor){
                     if(player.canSaveItself()) {
                         savedByDoctor = player;
                     }
@@ -274,7 +285,7 @@ public class Game {
             }
             else if(role==Role.drLecter) {
                 Player player=getPlayer(clientHandler.getMessage());
-                if(player.getRole()==Role.drLecter){
+                if(player!=null && player.getRole()==Role.drLecter){
                     if(player.canSaveItself()) {
                         savedByDrLecter = player;
                     }
@@ -311,13 +322,13 @@ public class Game {
         }
         if(targetedByGodfather!=null){
             if(savedByDoctor!=null && targetedByGodfather.equals(savedByDoctor)) {
-                broadcast("Doctor Saved the target\n");
+                broadcast("Doctor Saved the target");
             }
             else{
                 targetedByGodfather.shoot();
-                broadcast(targetedByGodfather.getUsername()+" have been killed\n");
+                broadcast(targetedByGodfather.getUsername()+" have been killed");
                 if(dieHardHaveRequested){
-                    whatHappened+="The "+targetedByGodfather.getRole().name()+" is out\n";
+                    whatHappened+="The "+targetedByGodfather.getRole().name()+" is out";
                 }
             }
         }
@@ -325,24 +336,24 @@ public class Game {
             Role role=targetedByProfessional.getRole();
             if(role==Role.godfather || role==Role.drLecter || role==Role.mafia){
                 if(savedByDrLecter!=null && targetedByProfessional.equals(savedByDrLecter)) {
-                    broadcast("Dr. Lecter Saved the target\n");
+                    broadcast("Dr. Lecter Saved the target");
                 }
                 else{
                     targetedByProfessional.kill();
-                    broadcast(targetedByProfessional.getUsername()+" have been killed\n");
+                    broadcast(targetedByProfessional.getUsername()+" have been killed");
                     if(dieHardHaveRequested){
-                        whatHappened+="The "+targetedByProfessional.getRole().name()+" is out\n";
+                        whatHappened+="The "+targetedByProfessional.getRole().name()+" is out";
                     }
                 }
             }
             else{
                 for(ClientHandler clientHandler:clientHandlers){
                     if(clientHandler.getPlayer().getRole()==Role.professional){
-                        clientHandler.send("Wrong decision, You will be out!\n");
+                        clientHandler.send("Wrong decision, You will be out!");
                         clientHandler.getPlayer().kill();
-                        broadcast(clientHandler.getUsername()+" have been killed\n");
+                        broadcast(clientHandler.getUsername()+" have been killed");
                         if(dieHardHaveRequested){
-                            whatHappened+="The "+clientHandler.getPlayer().getRole().name()+" is out\n";
+                            whatHappened+="The "+clientHandler.getPlayer().getRole().name()+" is out";
                         }
                     }
                 }
@@ -354,8 +365,8 @@ public class Game {
     }
     private String inquiry(Player player){
         if(player.getRole()==Role.mafia || player.getRole()==Role.drLecter)
-            return "Yes, a mafia!\n";
-        return "No! not a mafia\n";
+            return "Yes, a mafia!";
+        return "No! not a mafia";
     }
     private void unmutePlayers(){
         for(ClientHandler clientHandler:clientHandlers)
@@ -371,11 +382,11 @@ public class Game {
                 citizens++;
         }
         if(mafias>=citizens){
-            broadcast("Mafia group wins!\n");
+            broadcast("Mafia group wins!");
             return true;
         }
         if(mafias==0){
-            broadcast("Citizen group wins\n");
+            broadcast("Citizen group wins");
             return true;
         }
         return false;
@@ -398,7 +409,7 @@ public class Game {
             clientHandler.eraseMessage();
     }
     public String getHistory(){
-        String historyString="";
+        String historyString="History:\n";
         try{
             Scanner scanner=new Scanner(history);
             while (scanner.hasNextLine()){
@@ -412,8 +423,8 @@ public class Game {
     }
     private void addHistory(String message){
         try {
-            FileWriter writer = new FileWriter(history);
-            writer.write(message+"\n");
+            FileWriter writer = new FileWriter(history,true);
+            writer.append(message+"\n");
             writer.close();
         } catch (IOException exception) {
             exception.printStackTrace();
@@ -432,5 +443,9 @@ public class Game {
     }
     public void killPlayer(Player player){
         players.remove(player);
+    }
+    private void alivePlayers(){
+        for(ClientHandler clientHandler:clientHandlers)
+            clientHandler.alive();
     }
 }

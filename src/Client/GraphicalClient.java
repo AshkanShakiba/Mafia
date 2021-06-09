@@ -13,8 +13,8 @@ public class GraphicalClient extends JPanel {
     private ConsoleClient client;
 
     private static DefaultListModel<String> listModel = new DefaultListModel<>();
-    private static JList<String> messageList = new JList<>(listModel);
-    private static JTextField inputField = new JTextField();
+    private static JList<String> messages = new JList<>(listModel);
+    private static JTextField input = new JTextField();
 
     /**
      * Instantiates a new Graphical client.
@@ -25,15 +25,16 @@ public class GraphicalClient extends JPanel {
         this.client = client;
 
         setLayout(new BorderLayout());
-        add(new JScrollPane(messageList), BorderLayout.CENTER);
-        add(inputField, BorderLayout.SOUTH);
+        add(new JScrollPane(messages), BorderLayout.CENTER);
+        add(input, BorderLayout.SOUTH);
 
-        inputField.addActionListener(new ActionListener() {
+        input.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent event) {
-                String message = inputField.getText();
+                String message = input.getText();
                 client.send(message);
-                inputField.setText("");
+                input.setText("");
+                if(message.equalsIgnoreCase("EXIT")) System.exit(0);
             }
         });
     }
@@ -50,12 +51,12 @@ public class GraphicalClient extends JPanel {
 //        Client client=new Client(args[0],Integer.parseInt(args[1]));
         ConsoleClient client = new ConsoleClient("127.0.0.1", 4321);
         client.connectToServer();
-        GraphicalClient gamePane = new GraphicalClient(client);
+        GraphicalClient graphicalClient = new GraphicalClient(client);
 
-        JFrame frame = new JFrame("♠ Mafia ♠");
+        JFrame frame = new JFrame("Mafia");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(274, 500);
-        frame.getContentPane().add(gamePane, BorderLayout.CENTER);
+        frame.getContentPane().add(graphicalClient, BorderLayout.CENTER);
         frame.setVisible(true);
 
         String message;

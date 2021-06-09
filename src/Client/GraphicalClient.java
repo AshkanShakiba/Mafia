@@ -34,7 +34,7 @@ public class GraphicalClient extends JPanel {
                 String message = input.getText();
                 client.send(message);
                 input.setText("");
-                if(message.equalsIgnoreCase("EXIT")) System.exit(0);
+                if (message.equalsIgnoreCase("EXIT")) System.exit(0);
             }
         });
     }
@@ -46,9 +46,7 @@ public class GraphicalClient extends JPanel {
      * @throws InterruptedException the interrupted exception
      */
     public static void main(String[] args) {
-//        System.out.println(args[0]);
-//        System.out.println(args[1]);
-//        Client client=new Client(args[0],Integer.parseInt(args[1]));
+        //ConsoleClient client=new ConsoleClient(args[0],Integer.parseInt(args[1]));
         ConsoleClient client = new ConsoleClient("127.0.0.1", 4321);
         client.connectToServer();
         GraphicalClient graphicalClient = new GraphicalClient(client);

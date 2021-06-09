@@ -32,14 +32,13 @@ public class ConsoleClient {
      * @param args the input arguments
      */
     public static void main(String[] args) {
-//        String ip;
-//        int port;
-//        System.out.print("ip: ");
-//        ip = scanner.nextLine();
-//        System.out.print("port: ");
-//        port = Integer.parseInt(scanner.nextLine());
-//        ConsoleClient client = new ConsoleClient(ip, port);
-        ConsoleClient client=new ConsoleClient("127.0.0.1",4321);
+        String ip;
+        int port;
+        System.out.print("ip: ");
+        ip = scanner.nextLine();
+        System.out.print("port: ");
+        port = Integer.parseInt(scanner.nextLine());
+        ConsoleClient client = new ConsoleClient(ip, port);
         if (client.connectToServer()) {
             System.out.println("Connected to the server");
             client.start();

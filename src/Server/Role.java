@@ -65,6 +65,12 @@ public enum Role {
         }
     }
 
+    /**
+     * Gets role by turn.
+     *
+     * @param turn
+     * @return the role
+     */
     private static Role getRole(int turn) {
         if (turn == 1)
             return godfather;
@@ -88,6 +94,11 @@ public enum Role {
             return citizen;
     }
 
+    /**
+     * Check if there is any neutral player.
+     * @param players
+     * @return true if there is, false if not.
+     */
     private static boolean neutralPlayerExist(ArrayList<Player> players) {
         for (Player player : players)
             if (!player.hasRole())

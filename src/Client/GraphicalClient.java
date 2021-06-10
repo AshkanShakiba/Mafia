@@ -46,7 +46,7 @@ public class GraphicalClient extends JPanel {
      * @throws InterruptedException the interrupted exception
      */
     public static void main(String[] args) {
-        Scanner input=new Scanner(System.in);
+        Scanner input = new Scanner(System.in);
         String ip;
         int port;
         System.out.print("ip: ");
@@ -54,7 +54,7 @@ public class GraphicalClient extends JPanel {
         System.out.print("port: ");
         port = Integer.parseInt(input.nextLine());
         ConsoleClient client = new ConsoleClient(ip, port);
-        //ConsoleClient client=new ConsoleClient("127.0.0.1",4321);
+        //ConsoleClient client = new ConsoleClient("127.0.0.1", 4321);
         if (!client.connectToServer()) {
             System.err.println("Connection failed");
             System.exit(-1);

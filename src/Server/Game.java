@@ -521,7 +521,8 @@ public class Game {
         try {
             Scanner scanner = new Scanner(history);
             while (scanner.hasNextLine()) {
-                historyString += scanner.nextLine() + "\n";
+                historyString += scanner.nextLine();
+                if(scanner.hasNextLine()) historyString+="\n";
             }
             scanner.close();
         } catch (FileNotFoundException exception) {

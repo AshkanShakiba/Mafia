@@ -39,7 +39,7 @@ public class ConsoleClient {
         System.out.print("port: ");
         port = Integer.parseInt(scanner.nextLine());
         ConsoleClient client = new ConsoleClient(ip, port);
-        //ConsoleClient client=new ConsoleClient("127.0.0.1",4321);
+        //ConsoleClient client = new ConsoleClient("127.0.0.1", 4321);
         if (client.connectToServer()) {
             System.out.println("Connected to the server");
             client.start();

@@ -46,14 +46,25 @@ public class GraphicalClient extends JPanel {
      * @throws InterruptedException the interrupted exception
      */
     public static void main(String[] args) {
-        //ConsoleClient client=new ConsoleClient(args[0],Integer.parseInt(args[1]));
-        ConsoleClient client = new ConsoleClient("127.0.0.1", 4321);
+        Scanner input=new Scanner(System.in);
+        String ip;
+        int port;
+        System.out.print("ip: ");
+        ip = input.nextLine();
+        System.out.print("port: ");
+        port = Integer.parseInt(input.nextLine());
+        ConsoleClient client = new ConsoleClient(ip, port);
+        //ConsoleClient client=new ConsoleClient("127.0.0.1",4321);
+        if (!client.connectToServer()) {
+            System.err.println("Connection failed");
+            System.exit(-1);
+        }
         client.connectToServer();
         GraphicalClient graphicalClient = new GraphicalClient(client);
 
         JFrame frame = new JFrame("Mafia");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        frame.setSize(274, 500);
+        frame.setSize(275, 500);
         frame.getContentPane().add(graphicalClient, BorderLayout.CENTER);
         frame.setVisible(true);
 
@@ -61,8 +72,6 @@ public class GraphicalClient extends JPanel {
         Scanner scanner = new Scanner(client.getInputStream());
         while ((message = scanner.nextLine()) != null) {
             listModel.addElement(message);
-//            if(message.length()>2)
-//                listModel.addElement(message.substring(2));
         }
     }
 }

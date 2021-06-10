@@ -39,6 +39,7 @@ public class ConsoleClient {
         System.out.print("port: ");
         port = Integer.parseInt(scanner.nextLine());
         ConsoleClient client = new ConsoleClient(ip, port);
+        //ConsoleClient client=new ConsoleClient("127.0.0.1",4321);
         if (client.connectToServer()) {
             System.out.println("Connected to the server");
             client.start();
@@ -77,7 +78,7 @@ public class ConsoleClient {
             } catch (IOException exception) {
                 exception.printStackTrace();
             }
-            if (message.equalsIgnoreCase("EXIT")) break;
+            if (message.equalsIgnoreCase("EXIT")) System.exit(0);
         }
     }
 

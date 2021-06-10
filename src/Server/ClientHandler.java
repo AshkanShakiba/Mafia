@@ -13,7 +13,7 @@ public class ClientHandler implements Runnable {
     private Socket clientSocket;
     private Scanner scanner;
     private DataInputStream inputStream;
-    private DataOutputStream outputStream;
+    private PrintStream outputStream;
     private boolean isReadyToPlay;
     private boolean isReadyToVote;
     private String message;
@@ -44,7 +44,7 @@ public class ClientHandler implements Runnable {
         try {
             String check, username;
             inputStream = new DataInputStream(clientSocket.getInputStream());
-            outputStream = new DataOutputStream(clientSocket.getOutputStream());
+            outputStream = new PrintStream(clientSocket.getOutputStream());
             scanner = new Scanner(inputStream);
             send("Username: ");
             username = next();
@@ -138,11 +138,7 @@ public class ClientHandler implements Runnable {
      * @param message the message
      */
     public void send(String message) {
-        try {
-            outputStream.writeUTF((message + "\n"));
-        } catch (IOException exception) {
-            exception.printStackTrace();
-        }
+        outputStream.println(message);
     }
 
     /**

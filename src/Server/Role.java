@@ -96,6 +96,7 @@ public enum Role {
 
     /**
      * Check if there is any neutral player.
+     *
      * @param players
      * @return true if there is, false if not.
      */

@@ -59,7 +59,6 @@ public class GraphicalClient extends JPanel {
             System.err.println("Connection failed");
             System.exit(-1);
         }
-        client.connectToServer();
         GraphicalClient graphicalClient = new GraphicalClient(client);
 
         JFrame frame = new JFrame("Mafia");

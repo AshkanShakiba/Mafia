@@ -2,6 +2,9 @@ package Server;
 
 /**
  * The type Player.
+ *
+ * @author Ashkan Shakiba
+ * @version 2021-11-6
  */
 public class Player {
     private ClientHandler clientHandler;

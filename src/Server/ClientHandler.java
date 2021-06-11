@@ -6,6 +6,9 @@ import java.util.Scanner;
 
 /**
  * The Client handler thread to handle clients together.
+ *
+ * @author Ashkan Shakiba
+ * @version 2021-11-6
  */
 public class ClientHandler implements Runnable {
     private Player player;

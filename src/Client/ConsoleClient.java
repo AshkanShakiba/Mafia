@@ -6,6 +6,9 @@ import java.util.Scanner;
 
 /**
  * The entry class of console client application.
+ *
+ * @author Ashkan Shakiba
+ * @version 2021-11-6
  */
 public class ConsoleClient {
     private static String ip;

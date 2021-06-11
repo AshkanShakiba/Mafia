@@ -5,6 +5,9 @@ import java.util.*;
 
 /**
  * The Game data and methods.
+ *
+ * @author Ashkan Shakiba
+ * @version 2021-11-6
  */
 public class Game {
     private boolean gameIsFinished;
@@ -522,7 +525,7 @@ public class Game {
             Scanner scanner = new Scanner(history);
             while (scanner.hasNextLine()) {
                 historyString += scanner.nextLine();
-                if(scanner.hasNextLine()) historyString+="\n";
+                if (scanner.hasNextLine()) historyString += "\n";
             }
             scanner.close();
         } catch (FileNotFoundException exception) {

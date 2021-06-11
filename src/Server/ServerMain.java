@@ -2,6 +2,9 @@ package Server;
 
 /**
  * The Main class to run the server.
+ *
+ * @author Ashkan Shakiba
+ * @version 2021-11-6
  */
 public class ServerMain {
 

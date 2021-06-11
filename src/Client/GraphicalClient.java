@@ -8,6 +8,9 @@ import java.util.Scanner;
 
 /**
  * The entry class of graphical client application.
+ *
+ * @author Ashkan Shakiba
+ * @version 2021-11-6
  */
 public class GraphicalClient extends JPanel {
     private ConsoleClient client;
@@ -43,7 +46,6 @@ public class GraphicalClient extends JPanel {
      * The entry point of graphical client application.
      *
      * @param args the input arguments
-     * @throws InterruptedException the interrupted exception
      */
     public static void main(String[] args) {
         Scanner input = new Scanner(System.in);

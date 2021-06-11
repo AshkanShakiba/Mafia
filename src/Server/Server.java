@@ -7,6 +7,9 @@ import java.util.Date;
 
 /**
  * Server of each game.
+ *
+ * @author Ashkan Shakiba
+ * @version 2021-11-6
  */
 public class Server implements Runnable {
     private int port;

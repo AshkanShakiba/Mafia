@@ -5,6 +5,9 @@ import java.util.ArrayList;
 
 /**
  * The enum Role.
+ *
+ * @author Ashkan Shakiba
+ * @version 2021-11-6
  */
 public enum Role {
     /**

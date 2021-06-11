@@ -5,6 +5,9 @@ import java.util.Scanner;
 
 /**
  * The message reader thread of console client.
+ *
+ * @author Ashkan Shakiba
+ * @version 2021-11-6
  */
 public class MessageReader implements Runnable {
     private Scanner scanner;
